@@ -3,9 +3,11 @@ pipeline {
    agent any
 	
    options {
-      //clean old builds
+      // Clean old builds
       buildDiscarder(logRotator(artifactDaysToKeepStr: '5', daysToKeepStr: '5', numToKeepStr: '6', artifactNumToKeepStr: '6'))
-      //colorise output
+      // Set the build is aborted if not concluded after 10 minutes.
+      timeout(time: 10, unit: 'MINUTES')
+      // Colorise output with plugin
       ansiColor('xterm')
    }
    
@@ -15,23 +17,25 @@ pipeline {
    }
    
    stages {
-         //get new code from repository
+        // Get new code from repository
         stage('CHECKOUT') {
             steps {
                 git 'https://github.com/allainmoyo/spring-boot.git'
             }
         }
 	   
-         //building the code to get new artifact
+        // Build the code to get new artifact
         stage('BUILD') {
             steps {
+		//maven builds 
                 sh "mvn clean install -f ./spring-boot-tests/spring-boot-smoke-tests/spring-boot-smoke-test-web-ui/pom.xml"
-				sh "echo ${BUILD_NUMBER} > ~/build.number" //save build number to file to use it in QA/CI deployment jobs
-            }
+		//save build number to file to use it in QA/CI deployment jobs
+		sh "echo ${BUILD_NUMBER} > ~/build.number" 
+	    }
         }
 	   
-         //upload artifact to the Nexus3 repository
-        stage("UPLOAD ARTIFACT") {
+        // Upload artifact to the Nexus3 repository
+        stage('UPLOAD ARTIFACT') {
             steps {
                 nexusArtifactUploader(
                     nexusVersion: 'nexus3',
@@ -51,7 +55,7 @@ pipeline {
             }
         }
 	   
-         // deployment to QA instance and CI instance
+        // Deployment of artifact to QA and CI instances
         stage ('DEPLOY') {
             steps {
                 build job: 'deploy_jar_QA'
