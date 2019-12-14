@@ -1,8 +1,13 @@
 pipeline {
-   
-   agent any
-	
-   options {
+    agent any
+
+    options {
+      // Don’t run more than one build at a time.
+      disableConcurrentBuilds()
+      // If it fails, retry one time.
+      retry(1)
+      // If a stage returns with an unstable status, skip the rest of the build.
+      skipStagesAfterUnstable()
       // Clean old builds
       buildDiscarder(logRotator(artifactDaysToKeepStr: '5', daysToKeepStr: '5', numToKeepStr: '6', artifactNumToKeepStr: '6'))
       // Set the build is aborted if not concluded after 10 minutes.
@@ -10,13 +15,13 @@ pipeline {
       // Colorise output with plugin
       ansiColor('xterm')
    }
-   
+
    tools {
       // Install the Maven version configured as "maven" and add it to the path.
       maven "maven"
-   }
-   
-   stages {
+    }
+
+    stages {
         // Get new code from repository
         stage('CHECKOUT') {
             steps {
@@ -26,41 +31,58 @@ pipeline {
 	   
         // Build the code to get new artifact
         stage('BUILD') {
+            // If Pull request
+            when {
+                changeRequest()
+            }
             steps {
-		//maven builds 
+                //maven builds 
                 sh "mvn clean install -f ./spring-boot-tests/spring-boot-smoke-tests/spring-boot-smoke-test-web-ui/pom.xml"
-		//save build number to file to use it in QA/CI deployment jobs
-		sh "echo ${BUILD_NUMBER} > ~/build.number" 
-	    }
+                //save build number to file to use it in QA/CI deployment jobs
+                sh "echo ${BUILD_NUMBER} > ~/build.number" 
+            }
         }
 	   
         // Upload artifact to the Nexus3 repository
         stage('UPLOAD ARTIFACT') {
+            when {
+              branch 'master'
+            }
             steps {
                 nexusArtifactUploader(
-                    nexusVersion: 'nexus3',
-                    protocol: 'http',
-                    nexusUrl: 'localhost:8081',
-                    groupId: 'java',
-                    version: 'build-${BUILD_NUMBER}',
-                    repository: 'maven-repository',
-                    credentialsId: 'nexus-credentials',
-                    artifacts: [
-                        [artifactId: 'spring-boot-smoke-test-web-ui',
-                         classifier: '',
-                         file: 'spring-boot-tests/spring-boot-smoke-tests/spring-boot-smoke-test-web-ui/target/spring-boot-smoke-test-web-ui-2.2.1.BUILD-SNAPSHOT.jar',
-                         type: 'jar']
-                    ]
+                nexusVersion: 'nexus3',
+                protocol: 'http',
+                nexusUrl: 'localhost:8081',
+                groupId: 'java',
+                version: 'build-${BUILD_NUMBER}',
+                repository: 'maven-repository',
+                credentialsId: 'nexus-credentials',
+                artifacts: [[
+                    artifactId: 'spring-boot-smoke-test-web-ui',
+                    classifier: '',
+                    file: 'spring-boot-tests/spring-boot-smoke-tests/spring-boot-smoke-test-web-ui/target/spring-boot-smoke-test-web-ui-2.2.1.BUILD-SNAPSHOT.jar',
+                    type: 'jar'
+                    ]]
                 )
             }
         }
 	   
         // Deployment of artifact to QA and CI instances
         stage ('DEPLOY') {
+            when {
+              branch 'master'
+            }
             steps {
                 build job: 'deploy_jar_QA'
                 build job: 'deploy_jar_CI'
             }
         }
+	      
+        // Clean workspace
+        stage('Clean') {
+          steps {
+          cleanWs()
+      }
     }
+  }
 }
