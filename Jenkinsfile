@@ -33,7 +33,7 @@ pipeline {
         stage('BUILD') {
             // If Pull request
             when {
-                changeRequest()
+              branch 'master'
             }
             steps {
                 //maven builds 
