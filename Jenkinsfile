@@ -31,10 +31,6 @@ pipeline {
 	   
         // Build the code to get new artifact
         stage('BUILD') {
-            // If Pull request
-            when {
-              branch 'master'
-            }
             steps {
                 //maven builds 
                 sh "mvn clean install -f ./spring-boot-tests/spring-boot-smoke-tests/spring-boot-smoke-test-web-ui/pom.xml"
@@ -45,9 +41,6 @@ pipeline {
 	   
         // Upload artifact to the Nexus3 repository
         stage('UPLOAD ARTIFACT') {
-            when {
-              branch 'master'
-            }
             steps {
                 nexusArtifactUploader(
                 nexusVersion: 'nexus3',
@@ -69,9 +62,6 @@ pipeline {
 	   
         // Deployment of artifact to QA and CI instances
         stage ('DEPLOY') {
-            when {
-              branch 'master'
-            }
             steps {
                 build job: 'deploy_jar_QA'
                 build job: 'deploy_jar_CI'
