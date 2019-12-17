@@ -33,7 +33,7 @@ pipeline {
         // Get new code from repository
         stage('CHECKOUT') {
             steps {
-		sh 'echo ${JOB_NAME}
+		sh 'echo ${env.JOB_NAME}
 		// sh "rm -rf spring-boot/"
                 git 'https://github.com/allainmoyo/spring-boot.git'
             }
