@@ -41,13 +41,6 @@ pipeline {
             }
         }
 	
-	stage 'Test'
-	    node {
-		    catchError {
-			    sh 'exit 1'\
-		    } 
-	    step([$class: 'Mailer', notifyEveryUnstableBuild: true, recipients: 'allainmoyo@gmail.com', sendToIndividuals: true])
-	}
 	   
         // Upload artifact to the Nexus3 repository
         stage('UPLOAD ARTIFACT') {
