@@ -15,7 +15,9 @@ pipeline {
       // Colorise output with plugin
       ansiColor('xterm')
    }
-
+   environment {
+        MAVEN_OPTS = '-Djansi.force=true'
+    }
    tools {
       // Install the Maven version configured as "maven" and add it to the path.
       maven "maven"
@@ -33,11 +35,19 @@ pipeline {
         stage('BUILD') {
             steps {
                 //maven builds 
-                sh "mvn clean install -f ./spring-boot-tests/spring-boot-smoke-tests/spring-boot-smoke-test-web-ui/pom.xml"
+                sh "mvn -Dstyle.color=always -B clean install -f ./spring-boot-tests/spring-boot-smoke-tests/spring-boot-smoke-test-web-ui/pom.xml"
                 //save build number to file to use it in QA/CI deployment jobs
                 sh "echo ${BUILD_NUMBER} > ~/build.number" 
             }
         }
+	
+	stage 'Test'
+	    node {
+		    catchError {
+			    sh 'exit 1'\
+		    } 
+	    step([$class: 'Mailer', notifyEveryUnstableBuild: true, recipients: 'allainmoyo@gmail.com', sendToIndividuals: true])
+	}
 	   
         // Upload artifact to the Nexus3 repository
         stage('UPLOAD ARTIFACT') {
