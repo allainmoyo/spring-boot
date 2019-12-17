@@ -22,11 +22,19 @@ pipeline {
       // Install the Maven version configured as "maven" and add it to the path.
       maven "maven"
     }
-
+	
+    stage('Remove Dir') {            
+        steps {
+            deleteDir()            
+            }
+        }
+	
     stages {
         // Get new code from repository
         stage('CHECKOUT') {
             steps {
+		sh 'echo ${JOB_NAME}
+		// sh "rm -rf spring-boot/"
                 git 'https://github.com/allainmoyo/spring-boot.git'
             }
         }
@@ -72,7 +80,7 @@ pipeline {
         }
 	      
         // Clean workspace
-        stage('Clean') {
+        stage('Clean workspace') {
           steps {
           cleanWs()
       }
