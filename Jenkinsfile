@@ -15,9 +15,11 @@ pipeline {
       // Colorise output with plugin
       ansiColor('xterm')
    }
+	
    environment {
         MAVEN_OPTS = '-Djansi.force=true'
     }
+	
    tools {
       // Install the Maven version configured as "maven" and add it to the path.
       maven "maven"
@@ -34,7 +36,7 @@ pipeline {
         // Get new code from repository
         stage('CHECKOUT') {
             steps {
-		sh 'echo ${env.JOB_NAME}
+		sh 'echo ${env.JOB_NAME}'
 		// sh "rm -rf spring-boot/"
                 git 'https://github.com/allainmoyo/spring-boot.git'
             }
