@@ -23,13 +23,14 @@ pipeline {
       maven "maven"
     }
 	
-    stage('Remove Dir') {            
-        steps {
-            deleteDir()            
-            }
+    stages {
+	// Delete Dir
+	stage('Delete Dir') {            
+            steps {
+                deleteDir()            
+                }
         }
 	
-    stages {
         // Get new code from repository
         stage('CHECKOUT') {
             steps {
