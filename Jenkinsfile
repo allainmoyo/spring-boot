@@ -36,7 +36,7 @@ pipeline {
         // Get new code from repository
         stage('CHECKOUT') {
             steps {
-		sh "echo '${RED}${JOB_NAME}${RED}'"
+		sh "echo '${BRed}${JOB_NAME}${BRed}'"
 		// sh "rm -rf spring-boot/"
                 git 'https://github.com/allainmoyo/spring-boot.git'
             }
@@ -48,7 +48,7 @@ pipeline {
                 //maven builds 
                 sh "mvn -Dstyle.color=always -B clean install -f ./spring-boot-tests/spring-boot-smoke-tests/spring-boot-smoke-test-web-ui/pom.xml"
                 //save build number to file to use it in QA/CI deployment jobs
-                sh "echo '${RED}${BUILD_NUMBER} > ~/build.number${RED}'" 
+                sh "echo '${BRed}${BUILD_NUMBER} > ~/build.number${BRed}'" 
             }
         }
 	
