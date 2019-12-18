@@ -17,6 +17,7 @@ pipeline {
    }
 	
    environment {
+	// Set Maven variablr to colorise output
         MAVEN_OPTS = '-Djansi.force=true'
     }
 	
@@ -36,7 +37,7 @@ pipeline {
         // Get new code from repository
         stage('CHECKOUT') {
             steps {
-		sh "echo '${BRed}${JOB_NAME}${BRed}'"
+		sh "echo ${JOB_NAME}"
 		// sh "rm -rf spring-boot/"
                 git 'https://github.com/allainmoyo/spring-boot.git'
             }
@@ -48,7 +49,7 @@ pipeline {
                 //maven builds 
                 sh "mvn -Dstyle.color=always -B clean install -f ./spring-boot-tests/spring-boot-smoke-tests/spring-boot-smoke-test-web-ui/pom.xml"
                 //save build number to file to use it in QA/CI deployment jobs
-                sh "echo '${BRed}${BUILD_NUMBER} > ~/build.number${BRed}'" 
+                sh "echo ${BUILD_NUMBER} > ~/build.number" 
             }
         }
 	
