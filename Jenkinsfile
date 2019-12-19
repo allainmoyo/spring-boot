@@ -46,7 +46,7 @@ pipeline {
         // Build the code to get new artifact
         stage('BUILD') {
             steps {
-                //maven builds 
+                //maven builds (Run in non-interactive (batch) mode)
                 sh "mvn -Dstyle.color=always -B clean install -f ./spring-boot-tests/spring-boot-smoke-tests/spring-boot-smoke-test-web-ui/pom.xml"
                 //save build number to file to use it in QA/CI deployment jobs
                 sh "echo ${BUILD_NUMBER} > ~/build.number" 
