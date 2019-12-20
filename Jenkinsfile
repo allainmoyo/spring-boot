@@ -31,7 +31,7 @@ pipeline {
 	//stage('Delete Dir') {            
         //    steps {
         //       deleteDir()            
-                }
+        //       }
         //}
 	
         // Get new code from repository
