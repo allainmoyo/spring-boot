@@ -28,11 +28,11 @@ pipeline {
 	
     stages {
 	// Delete Dir
-	stage('Delete Dir') {            
-            steps {
-                deleteDir()            
+	//stage('Delete Dir') {            
+        //    steps {
+        //       deleteDir()            
                 }
-        }
+        //}
 	
         // Get new code from repository
         stage('CHECKOUT') {
